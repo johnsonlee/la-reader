@@ -20,8 +20,6 @@ private const val SINGLE_QUOTE: Int = 39
  */
 private const val BACK_SLASH: Int = 92
 
-private const val EOF: Int = -1
-
 /**
  * Look ahead reader
  */
@@ -30,6 +28,10 @@ open class LookAheadReader @JvmOverloads constructor(
         bufferSize: Int = DEFAULT_BUFFER_SIZE
 ) : PushbackReader(reader.buffered(), bufferSize) {
 
+    companion object {
+        const val EOF: Int = -1
+    }
+
     @JvmOverloads
     constructor(
             input: InputStream,
@@ -37,15 +39,14 @@ open class LookAheadReader @JvmOverloads constructor(
     ) : this(input.bufferedReader(), bufferSize)
 
     /**
-     * Read sequence wrapped by [wrapper]
+     * Read sequence wrapped by [left] and [right]
      */
     @JvmOverloads
-    open fun readWrappedString(wrapper: Int, escape: Int = BACK_SLASH): String? {
+    open fun readWrappedString(left: Int, right: Int = left, escape: Int = if (left == right) left else EOF): String? {
         var prev: Int
         var next = read()
 
-        if (wrapper != next) {
-            unread(next)
+        if (EOF == next || left != next) {
             return null
         }
 
@@ -56,7 +57,7 @@ open class LookAheadReader @JvmOverloads constructor(
 
             if (next == EOF) throw EOFException()
 
-            if (next == wrapper && prev != escape) {
+            if (next == right && prev != escape) {
                 if (next != escape) {
                     break
                 }
@@ -75,15 +76,17 @@ open class LookAheadReader @JvmOverloads constructor(
         return str.toString()
     }
 
+    private fun readQuotedString(quote: Int): String? = readWrappedString(quote, quote, BACK_SLASH)
+
     /**
      * Read double quoted string, supports quote escape
      */
-    open fun readDoubleQuotedString(): String? = readWrappedString(DOUBLE_QUOTE)
+    open fun readDoubleQuotedString(): String? = readQuotedString(DOUBLE_QUOTE)
 
     /**
      * Read single quoted string, supports quote escape
      */
-    open fun readSingleQuotedString(): String? = readWrappedString(SINGLE_QUOTE)
+    open fun readSingleQuotedString(): String? = readQuotedString(SINGLE_QUOTE)
 
     /**
      * Read unsigned int value
