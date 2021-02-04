@@ -132,7 +132,7 @@ open class LookAheadReader @JvmOverloads constructor(
     /**
      * Read boolean literal
      */
-    open fun readBoolean(): Boolean? = when (peak()) {
+    open fun readBoolean(): Boolean? = when (peek()) {
         /* t */ 116 -> readTrue()
         /* f */ 102 -> readFalse()
         else -> null
@@ -222,7 +222,7 @@ open class LookAheadReader @JvmOverloads constructor(
     /**
      * Returns the next char without consuming the stream
      */
-    open fun peak(): Int {
+    fun peek(): Int {
         val c = read()
         unread(c)
         return c
