@@ -130,4 +130,12 @@ class LookAheadReaderTest {
         }
     }
 
+    @Test
+    fun `test read token`() {
+        StringReader("abcde (status)").use { reader ->
+            val lar = LookAheadReader(reader)
+            assertEquals("abcde", lar.readToken())
+        }
+    }
+
 }

@@ -188,6 +188,27 @@ open class LookAheadReader @JvmOverloads constructor(
         return line.toString()
     }
 
+    @JvmOverloads
+    open fun readToken(delimiters: String = " \t\r\n\u000C"): String? {
+        val delims = delimiters.toCharArray().map(Char::toInt).toIntArray()
+        val token = StringBuilder()
+        var c: Int
+
+        while (true) {
+            c = read()
+            when {
+                c == EOF -> break
+                delims.contains(c) -> {
+                    unread(c)
+                    break
+                }
+            }
+            token.append(c.toChar())
+        }
+
+        return token.toString()
+    }
+
     /**
      * Skip whitespace
      */
