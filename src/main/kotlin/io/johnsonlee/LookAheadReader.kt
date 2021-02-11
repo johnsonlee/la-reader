@@ -206,7 +206,7 @@ open class LookAheadReader @JvmOverloads constructor(
             token.append(c.toChar())
         }
 
-        return token.toString()
+        return token.takeIf(StringBuilder::isNotEmpty)?.toString()
     }
 
     /**
